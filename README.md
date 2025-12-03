@@ -18,13 +18,13 @@ Girilen bilgilere göre 0–100 aralığında otomatik gizlilik skoru hesaplanı
 - Profil görünürlüğü  
 - Username–email eşleşmeleri
 
-### 📧 E-posta Dijital İzi Analizi
+### E-posta Dijital İzi Analizi
 - Örnek sızıntı kaynakları  
 - GitHub commit izleri (örnekleştirilmiş)  
 - Keybase profil kontrolleri  
 - E-posta görünürlük riskleri
 
-### 🌐 Çoklu Platform Analizi
+### Çoklu Platform Analizi
 Instagram, LinkedIn, GitHub vb. platformlar için:  
 - Kullanıcı adı  
 - E-posta  
