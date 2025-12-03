@@ -7,11 +7,11 @@ import re
 import hashlib
 from pathlib import Path
 
-# httpx opsiyonel: yoksa sadece GitHub/Keybase kısımları None döner
+
 try:
-    import httpx  # type: ignore
+    import httpx  
 except ImportError:
-    httpx = None  # type: ignore
+    httpx = None  
 
 app = FastAPI(
     title="Personal Data Guardian API",
@@ -27,9 +27,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ======================================================
+
 #  Yardımcı normalizasyon (Türkçe karakterleri sadeleştir)
-# ======================================================
+
 TR_TABLE = str.maketrans("çğıöşüÇĞİÖŞÜ", "cgiosuCGIOSU")
 
 
@@ -37,9 +37,7 @@ def norm(text: str) -> str:
     return text.lower().translate(TR_TABLE)
 
 
-# ======================================================
-#  Türkiye il + bazı İstanbul ilçe anahtar kelimeleri
-# ======================================================
+
 TR_CITY_KEYWORDS = [
     "adana", "adiyaman", "afyonkarahisar", "agri", "amasya", "ankara",
     "antalya", "artvin", "aydin", "balikesir", "bilecik", "bingol", "bitlis",
@@ -64,10 +62,10 @@ IST_DISTRICTS = [
     "kagithane", "sisli", "beyoglu", "eyupsultan",
 ]
 
-# 01–81 plaka kodu (başında/sonunda başka rakam yoksa)
+
 PLATE_CODE_PATTERN = re.compile(r"(?<!\d)(0?[1-9]|[1-7][0-9]|8[01])(?!\d)")
 
-# Adres benzeri patternler (mah, sok, no, daire vs.)
+
 ADDRESS_HINTS = [
     "mah", "mah.", "mahalle",
     "sk", "sk.", "sok", "sokak",
@@ -75,7 +73,7 @@ ADDRESS_HINTS = [
     "no:", "no ", "kapi no", "kapı no", "daire", "blok",
 ]
 
-# Okul / kurum / banka vb. anahtar kelimeler (light)
+
 ORG_KEYWORDS = [
     "universitesi", "lisesi", "koleji", "fakultesi",
     "bank", "banka", "holding", "sigorta",
@@ -89,7 +87,7 @@ GENERIC_LOCAL_PARTS = {
 FREE_EMAIL_DOMAINS = {
     "gmail.com", "hotmail.com", "hotmail.com.tr", "outlook.com",
     "outlook.com.tr", "yahoo.com", "yandex.com", "icloud.com",
-    "proton.me", "protonmail.com", "msn.com", "live.com", "live.com.tr",
+      "msn.com", "live.com", "live.com.tr",
 }
 
 
@@ -134,7 +132,7 @@ def email_contains_2digit_year(email: str) -> bool:
     candidates = re.findall(r"(^|[^0-9])(\d{2})([^0-9]|$)", local)
     for _, d, _ in candidates:
         val = int(d)
-        # 50–99 veya 00–24 → yıl gibi kabul
+  
         if val >= 50 or val <= 24:
             return True
     return False
@@ -181,9 +179,7 @@ def normalize_name_tokens(full_name: str) -> List[str]:
     return tokens
 
 
-# ======================================================
-#  Email Exposure / Breach DB helper'ları
-# ======================================================
+
 BREACH_DB_LOADED = False
 BREACH_DB: Dict[str, List[str]] = {}
 
@@ -268,9 +264,7 @@ def keybase_has_profile_for_email(email: str) -> Optional[bool]:
         return None
 
 
-# ======================================================
-#  Pydantic Modelleri
-# ======================================================
+
 class SocialAccount(BaseModel):
     platform: str
     username: str
@@ -290,8 +284,8 @@ class AnalyzeRequest(BaseModel):
 
 class RiskItem(BaseModel):
     id: str
-    category: str    # ACCOUNT, LOCATION, CONTACT, EXPOSURE, IDENTITY, OTHER
-    severity: str    # HIGH, MEDIUM, LOW
+    category: str    
+    severity: str    
     description: str
     suggested_action: str
 
@@ -312,31 +306,25 @@ class AnalyzeResponse(BaseModel):
     medium_risk_count: int
     low_risk_count: int
     risks: List[RiskItem]
-    privacy_level: str          # "GÜÇLÜ" / "ORTA" / "ZAYIF"
-    summary: str                # kısa TR açıklama
+    privacy_level: str        
+    summary: str          
     email_exposure: Optional[EmailExposureResult] = None
 
 
-# ======================================================
-#  Health check
-# ======================================================
+
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
 
 
-# ======================================================
-#  Ana analiz fonksiyonu
-# ======================================================
+
 def calculate_privacy_score_and_risks(payload: AnalyzeRequest) -> AnalyzeResponse:
     risks: List[RiskItem] = []
     score = 100
 
     primary_email = payload.primary_email.strip().lower()
 
-    # -------------------------------------------------
-    # 1) Ana e-postada yıl / telefon / generic riskleri
-    # -------------------------------------------------
+    
     if email_contains_4digit_year(primary_email) or email_contains_2digit_year(primary_email):
         risks.append(
             RiskItem(
@@ -373,7 +361,7 @@ def calculate_privacy_score_and_risks(payload: AnalyzeRequest) -> AnalyzeRespons
         )
         score -= 5
 
-    # E-posta içinde plaka / konum ipucu
+
     if text_has_location(primary_email):
         risks.append(
             RiskItem(
@@ -386,9 +374,7 @@ def calculate_privacy_score_and_risks(payload: AnalyzeRequest) -> AnalyzeRespons
         )
         score -= 5
 
-    # -------------------------------------------------
-    # 2) Aynı ana e-posta kaç platformda kullanılıyor?
-    # -------------------------------------------------
+  
     platforms_using_primary_email = [
         acc.platform
         for acc in payload.social_accounts
@@ -406,9 +392,7 @@ def calculate_privacy_score_and_risks(payload: AnalyzeRequest) -> AnalyzeRespons
         )
         score -= 15
 
-    # -------------------------------------------------
-    # 3) Hesap bazlı telefon / konum / adres / kurum riskleri
-    # -------------------------------------------------
+  
     phone_risky_accounts: List[SocialAccount] = []
     location_risky_accounts: List[SocialAccount] = []
     address_risky_accounts: List[SocialAccount] = []
@@ -424,19 +408,19 @@ def calculate_privacy_score_and_risks(payload: AnalyzeRequest) -> AnalyzeRespons
             ]
         )
 
-        # E-posta telefona benziyor mu?
+ 
         if acc_email and email_looks_like_phone(acc_email):
             phone_risky_accounts.append(acc)
 
-        # Konum: checkbox veya metin içeriği (username + bio + email üzerinden)
+
         if acc.has_location_in_bio or text_has_location(combined_for_location):
             location_risky_accounts.append(acc)
 
-        # Adres benzeri metin (bio üzerinden)
+
         if text_looks_like_address(acc.bio_text):
             address_risky_accounts.append(acc)
 
-        # Kurum/okul/banka ipucu (username + bio)
+        
         combined_org = " ".join(
             [
                 acc.username or "",
@@ -494,9 +478,7 @@ def calculate_privacy_score_and_risks(payload: AnalyzeRequest) -> AnalyzeRespons
         )
         score -= 10
 
-    # -------------------------------------------------
-    # 4) Kurumsal e-posta kullanımı
-    # -------------------------------------------------
+  
     corporate_risky_accounts: List[SocialAccount] = []
     corporate_social_domains: set = set()
 
@@ -540,9 +522,7 @@ def calculate_privacy_score_and_risks(payload: AnalyzeRequest) -> AnalyzeRespons
         )
         score -= 15
 
-    # -------------------------------------------------
-    # 5) Kullanıcı adı – gerçek isim benzerliği & aynı username
-    # -------------------------------------------------
+
     name_tokens = normalize_name_tokens(payload.full_name)
     username_like_realname_count = 0
 
@@ -553,14 +533,14 @@ def calculate_privacy_score_and_risks(payload: AnalyzeRequest) -> AnalyzeRespons
         if not uname:
             continue
 
-        # aynı username kaç platformda?
+      
         username_to_platforms.setdefault(uname, set()).add(acc.platform)
 
-        # gerçek isim token'ları username içinde geçiyor mu?
+     
         if any(tok in uname for tok in name_tokens):
             username_like_realname_count += 1
 
-    # username = gerçek isim benzeri hesaplar fazlaysa
+
     if username_like_realname_count >= 2 and name_tokens:
         risks.append(
             RiskItem(
@@ -573,7 +553,7 @@ def calculate_privacy_score_and_risks(payload: AnalyzeRequest) -> AnalyzeRespons
         )
         score -= 10
 
-    # aynı username 3+ platformda kullanılıyorsa
+
     shared_usernames = [
         (uname, plats)
         for uname, plats in username_to_platforms.items()
@@ -591,9 +571,7 @@ def calculate_privacy_score_and_risks(payload: AnalyzeRequest) -> AnalyzeRespons
         )
         score -= 10
 
-    # -------------------------------------------------
-    # 6) Dijital görünürlük: hesap sayısı & public hesaplar
-    # -------------------------------------------------
+
     total_accounts = len(payload.social_accounts)
     public_accounts = sum(1 for a in payload.social_accounts if a.is_public)
 
@@ -622,9 +600,7 @@ def calculate_privacy_score_and_risks(payload: AnalyzeRequest) -> AnalyzeRespons
         )
         score -= 10
 
-    # -------------------------------------------------
-    # 7) Email exposure analizi (breach / GitHub / Keybase)
-    # -------------------------------------------------
+
     breach_found, breach_sources = check_breaches_for_email(primary_email)
     github_commits = github_commit_count_for_email(primary_email)
     keybase_found = keybase_has_profile_for_email(primary_email)
@@ -674,9 +650,7 @@ def calculate_privacy_score_and_risks(payload: AnalyzeRequest) -> AnalyzeRespons
         )
         score -= 5
 
-    # -------------------------------------------------
-    # 8) Skor, seviye ve özet
-    # -------------------------------------------------
+
     score = max(0, min(100, score))
 
     high_count = sum(1 for r in risks if r.severity == "HIGH")
@@ -690,7 +664,7 @@ def calculate_privacy_score_and_risks(payload: AnalyzeRequest) -> AnalyzeRespons
     else:
         privacy_level = "ZAYIF"
 
-    # En ağır kategorileri bul (HIGH -> MEDIUM)
+   
     main_cats: List[str] = []
     for sev in ("HIGH", "MEDIUM"):
         for r in risks:
@@ -739,9 +713,9 @@ def calculate_privacy_score_and_risks(payload: AnalyzeRequest) -> AnalyzeRespons
     )
 
 
-# ======================================================
+
 #  API endpoint
-# ======================================================
+
 @app.post("/analyze", response_model=AnalyzeResponse)
 def analyze(payload: AnalyzeRequest):
     return calculate_privacy_score_and_risks(payload)
