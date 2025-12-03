@@ -24,7 +24,7 @@ type AnalyzeResponse = {
   medium_risk_count: number;
   low_risk_count: number;
   risks: RiskItem[];
-  privacy_level: string; // "GÜÇLÜ" / "ORTA" / "ZAYIF"
+  privacy_level: string; 
   summary: string;
   email_exposure?: EmailExposure;
 };
@@ -82,7 +82,7 @@ function categoryLabel(cat: string) {
 }
 
 function App() {
-  // 🔒 Artık boş başlıyor
+  
   const [fullName, setFullName] = useState("");
   const [primaryEmail, setPrimaryEmail] = useState("");
 
@@ -230,7 +230,7 @@ function App() {
                     className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-sm text-slate-100 outline-none focus:border-sky-500"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    placeholder="Örn: Ali Veli"
+                    placeholder="Örn: "
                   />
                 </div>
                 <div className="space-y-1">
@@ -460,7 +460,7 @@ function App() {
               )}
             </div>
 
-            {/* Risk Listesi */}
+      
             <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-xl shadow-black/40">
               <h2 className="text-sm font-medium text-slate-200 mb-3">
                 Tespit Edilen Riskler
@@ -504,7 +504,7 @@ function App() {
             </div>
           </section>
 
-          {/* E-posta İzi Analizi */}
+       
           <section className="mt-2 rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-xl shadow-black/40">
             <h2 className="text-sm font-medium text-slate-200 mb-2">
               E-posta Dijital İzi Analizi
@@ -517,7 +517,7 @@ function App() {
               </p>
             ) : (
               <div className="grid gap-4 md:grid-cols-3 text-xs">
-                {/* Sol blok: Özet */}
+    
                 <div className="space-y-1">
                   <p className="text-slate-400">
                     Analiz edilen e-posta:{" "}
@@ -544,7 +544,7 @@ function App() {
                     )}
                 </div>
 
-                {/* Orta blok: GitHub */}
+
                 <div className="space-y-1">
                   <p className="text-slate-400 font-semibold mb-1">
                     GitHub İzleri
@@ -568,7 +568,7 @@ function App() {
                   )}
                 </div>
 
-                {/* Sağ blok: Keybase */}
+
                 <div className="space-y-1">
                   <p className="text-slate-400 font-semibold mb-1">
                     Diğer İzler
