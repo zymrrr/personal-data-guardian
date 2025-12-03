@@ -1,6 +1,6 @@
 import { useState, FormEvent } from "react";
 
-// API adresi: prod'da VITE_API_BASE_URL, lokalde localhost:8000
+
 const API_BASE =
   import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
@@ -412,9 +412,9 @@ function App() {
             </form>
           </section>
 
-          {/* SKOR + RİSKLER */}
+  
           <section className="grid gap-6 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1.6fr)]">
-            {/* Skor */}
+ 
             <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 text-center shadow-xl shadow-black/40">
               <h2 className="text-sm font-medium text-slate-200 mb-3">
                 Gizlilik Skoru
@@ -497,7 +497,7 @@ function App() {
             </div>
           </section>
 
-          {/* E-POSTA İZİ */}
+   
           <section className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-xl shadow-black/40">
             <h2 className="text-sm font-medium text-slate-200 mb-2">
               E-posta Dijital İzi Analizi
@@ -509,7 +509,7 @@ function App() {
               </p>
             ) : (
               <div className="grid gap-4 md:grid-cols-3 text-xs">
-                {/* Sol blok */}
+     
                 <div className="space-y-1">
                   <p className="text-slate-400">
                     Analiz edilen e-posta:{" "}
@@ -536,7 +536,7 @@ function App() {
                     )}
                 </div>
 
-                {/* Orta blok: GitHub */}
+ 
                 <div className="space-y-1">
                   <p className="text-slate-400 font-semibold mb-1">
                     GitHub İzleri
@@ -560,7 +560,7 @@ function App() {
                   )}
                 </div>
 
-                {/* Sağ blok: Keybase */}
+       
                 <div className="space-y-1">
                   <p className="text-slate-400 font-semibold mb-1">
                     Diğer İzler
